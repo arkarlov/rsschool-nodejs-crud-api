@@ -1,3 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 
-export type RequestController = (req: IncomingMessage, res: ServerResponse) => Promise<void>
+export type RequestController<T extends any[] = []> = (
+  req: IncomingMessage,
+  res: ServerResponse,
+  ...args: T
+) => Promise<void>
