@@ -1,8 +1,8 @@
-import { User } from '../models/user.model'
+import { type UserModel } from '../models/user.model'
 
-export const userDB: Map<string, User> = new Map()
+export const userDB: Map<string, UserModel> = new Map()
 
-const initialUsers: User[] = [
+const initialUsers: UserModel[] = [
   {
     id: '83bba01d-53e2-4ce0-8e58-3027c3b80746',
     username: 'Alice',

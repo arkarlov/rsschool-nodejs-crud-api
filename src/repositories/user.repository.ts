@@ -1,11 +1,11 @@
 import { userDB } from '../db/user.db'
-import { type User } from '../models/user.model'
+import { type UserModel } from '../models/user.model'
 
-const findAll = async (): Promise<User[]> => {
+const findAll = async (): Promise<UserModel[]> => {
   return Array.from(userDB.values())
 }
 
-const findById = async (id: string): Promise<User | undefined> => {
+const findById = async (id: string): Promise<UserModel | undefined> => {
   return userDB.get(id)
 }
 

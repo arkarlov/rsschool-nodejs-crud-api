@@ -2,13 +2,13 @@ import { STATUS_CODES } from 'node:http'
 import { type RequestController } from '../types/request.types'
 import { ApiResponse } from '../types/response.types'
 import userRepository from '../repositories/user.repository'
-import { type User } from '../models/user.model'
 import { isValidUuid } from '../utils/uuid.utils'
+import { UserDTO } from '../dto/user.dto'
 
 const getAllUsers: RequestController = async (req, res) => {
   try {
     const users = await userRepository.findAll()
-    const response: ApiResponse<User[]> = { data: users }
+    const response: ApiResponse<UserDTO[]> = { data: users }
 
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify(response))
@@ -39,7 +39,7 @@ const getUser: RequestController = async (req, res) => {
       return
     }
 
-    const response: ApiResponse<User> = { data: user }
+    const response: ApiResponse<UserDTO> = { data: user }
 
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify(response))
