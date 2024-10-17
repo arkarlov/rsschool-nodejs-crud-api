@@ -83,4 +83,19 @@ const updateUser: RequestController<[string]> = async (req, res, userId) => {
   res.end(JSON.stringify(response))
 }
 
-export default { getAllUsers, getUser, createUser, updateUser }
+const deleteUser: RequestController<[string]> = async (req, res, userId) => {
+  const isDeleted = await userRepository.deleteUser(userId)
+
+  if (!isDeleted) {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ data: null, error: 'Not Found' }))
+    return
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify({ data: true }))
+
+  return
+}
+
+export default { getAllUsers, getUser, createUser, updateUser, deleteUser }

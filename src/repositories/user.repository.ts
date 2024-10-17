@@ -34,4 +34,10 @@ const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserModel | 
   return updatedUser
 }
 
-export default { findAll, findById, createUser, updateUser }
+const deleteUser = async (id: string): Promise<boolean> => {
+  const isDeleted = userDB.delete(id)
+
+  return isDeleted
+}
+
+export default { findAll, findById, createUser, updateUser, deleteUser }
