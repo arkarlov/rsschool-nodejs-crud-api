@@ -1,9 +1,5 @@
-export interface CreateUserDTO {
-  username: string
-  age: number
-  hobbies: string[]
-}
+import { type UserModel } from '../models/user.model'
 
-export interface UserDTO extends CreateUserDTO {
-  id: string
-}
+export type UserDTO = UserModel
+
+export type CreateUserDTO = Pick<UserModel, 'username' | 'age' | 'hobbies'>
