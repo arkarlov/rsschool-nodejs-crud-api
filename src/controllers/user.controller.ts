@@ -2,9 +2,9 @@ import { STATUS_CODES } from 'node:http'
 import { type RequestController } from '../types/request.types'
 import { ApiResponse } from '../types/response.types'
 import userRepository from '../repositories/user.repository'
-import { CreateUserDTO, UserDTO } from '../dto/user.dto'
-import { getPostData } from '../utils/request.utils'
-import { validateCreateUserDTO } from '../utils/user.utils'
+import { CreateUserDTO, UpdateUserDTO, UserDTO } from '../dto/user.dto'
+import { getRequestBody } from '../utils/request.utils'
+import { validateCreateUserDTO, validateUpdateUserDTO } from '../utils/user.utils'
 
 const getAllUsers: RequestController = async (req, res) => {
   try {
@@ -40,7 +40,7 @@ const getUser: RequestController<[string]> = async (req, res, userId) => {
 }
 
 const createUser: RequestController = async (req, res) => {
-  const body = await getPostData<CreateUserDTO>(req)
+  const body = await getRequestBody<CreateUserDTO>(req)
 
   const { isValid, errors } = validateCreateUserDTO(body)
 
@@ -58,4 +58,29 @@ const createUser: RequestController = async (req, res) => {
   res.end(JSON.stringify(response))
 }
 
-export default { getAllUsers, getUser, createUser }
+const updateUser: RequestController<[string]> = async (req, res, userId) => {
+  const body = await getRequestBody<UpdateUserDTO>(req)
+  const { isValid, errors } = validateUpdateUserDTO(body)
+
+  if (!isValid) {
+    // throw new Error('Validation error')
+    res.writeHead(400, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ data: null, errors }))
+    return
+  }
+
+  const updatedUser = await userRepository.updateUser(userId, body)
+
+  if (!updatedUser) {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ data: null, error: 'Not Found' }))
+    return
+  }
+
+  const response: ApiResponse<UserDTO> = { data: updatedUser }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(response))
+}
+
+export default { getAllUsers, getUser, createUser, updateUser }

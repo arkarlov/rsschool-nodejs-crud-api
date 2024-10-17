@@ -36,6 +36,22 @@ export const userRouter: RequestListener = (req, res) => {
     return
   }
 
+  if (method === 'PUT') {
+    const userId = req.url.split('/').pop()
+
+    if (!isValidUserId(userId)) {
+      const response = { data: null, error: 'Bad request' }
+
+      res.writeHead(400, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(response))
+      return
+    }
+
+    void userController.updateUser(req, res, userId)
+
+    return
+  }
+
   res.writeHead(400, { 'Content-Type': 'text/plain' })
   res.end('Bad Request')
 }

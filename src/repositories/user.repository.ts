@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { userDB } from '../db/user.db'
-import { type CreateUserDTO } from '../dto/user.dto'
+import { UpdateUserDTO, type CreateUserDTO } from '../dto/user.dto'
 import { type UserModel } from '../models/user.model'
 
 const findAll = async (): Promise<UserModel[]> => {
@@ -14,8 +14,8 @@ const findById = async (id: string): Promise<UserModel | undefined> => {
 const createUser = async (data: CreateUserDTO): Promise<UserModel> => {
   const id = uuidv4()
   const newUser = {
-    id,
     ...data,
+    id,
   }
 
   userDB.set(id, newUser)
@@ -23,4 +23,15 @@ const createUser = async (data: CreateUserDTO): Promise<UserModel> => {
   return newUser
 }
 
-export default { findAll, findById, createUser }
+const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserModel | undefined> => {
+  const user = userDB.get(id)
+
+  if (!user) return
+
+  const updatedUser: UserModel = { ...user, ...data, id }
+  userDB.set(id, updatedUser)
+
+  return updatedUser
+}
+
+export default { findAll, findById, createUser, updateUser }
