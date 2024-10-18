@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
 import { userDB } from '../db/user.db'
 import { UpdateUserDTO, type CreateUserDTO } from '../dto/user.dto'
-import { type UserModel } from '../models/user.model'
+import { type EditableUserModelKeys, type UserModel } from '../models/user.model'
+import { pickObjectKeys } from '../utils/common.utils'
 
 const findAll = async (): Promise<UserModel[]> => {
   return Array.from(userDB.values())
@@ -13,10 +14,13 @@ const findById = async (id: string): Promise<UserModel | undefined> => {
 
 const createUser = async (data: CreateUserDTO): Promise<UserModel> => {
   const id = uuidv4()
-  const newUser = {
-    ...data,
-    id,
-  }
+  const storeData = pickObjectKeys<UserModel, EditableUserModelKeys>(data, [
+    'username',
+    'age',
+    'hobbies',
+  ])
+
+  const newUser: UserModel = { id, ...storeData }
 
   userDB.set(id, newUser)
 
@@ -28,7 +32,14 @@ const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserModel | 
 
   if (!user) return
 
-  const updatedUser: UserModel = { ...user, ...data, id }
+  const storeData = pickObjectKeys<Partial<UserModel>, EditableUserModelKeys>(data, [
+    'username',
+    'age',
+    'hobbies',
+  ])
+
+  const updatedUser: UserModel = { ...user, ...storeData }
+
   userDB.set(id, updatedUser)
 
   return updatedUser

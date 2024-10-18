@@ -4,3 +4,5 @@ export interface UserModel {
   age: number
   hobbies: string[]
 }
+
+export type EditableUserModelKeys = Exclude<keyof UserModel, 'id'>
