@@ -63,7 +63,7 @@ export const userRouter: RequestListener = (req, res) => {
       return
     }
 
-    userController.deleteUser(req, res, userId)
+    void userController.deleteUser(req, res, userId)
 
     return
   }
