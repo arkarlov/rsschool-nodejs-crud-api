@@ -1,6 +1,6 @@
 import { ServerResponse } from 'node:http'
 
-export const sendSuccessResponse = <T>(res: ServerResponse, data: T, statusCode: number = 200) => {
+export const sendSuccessResponse = <T>(res: ServerResponse, statusCode: number = 200, data?: T) => {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json')
   res.end(
@@ -13,8 +13,8 @@ export const sendSuccessResponse = <T>(res: ServerResponse, data: T, statusCode:
 
 export const sendErrorResponse = (
   res: ServerResponse,
-  message: string,
-  statusCode: number = 400,
+  statusCode: number = 500,
+  message: string = 'Internal Server Error',
   cause?: string
 ) => {
   res.statusCode = statusCode

@@ -1,76 +1,54 @@
 import { type RequestController } from '../types/request.types'
-import userRepository from '../repositories/user.repository'
-import { CreateUserDTO, UpdateUserDTO, UserDTO } from '../dto/user.dto'
+import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto'
 import { getRequestBody } from '../utils/request.utils'
-import { validateCreateUserDTO, validateUpdateUserDTO } from '../utils/user.utils'
 import { sendErrorResponse, sendSuccessResponse } from '../utils/response.utils'
-import { AppError } from '../types/error.types'
 import { StatusCode } from '../types/status-code'
+import userService from '../services/user.service'
 
 const getAllUsers: RequestController = async (_, res) => {
   try {
-    const users = await userRepository.findAll()
-    sendSuccessResponse(res, users)
+    const users = await userService.getAllUsers()
+    sendSuccessResponse(res, StatusCode.OK, users)
   } catch (error) {
-    sendErrorResponse(res, error.message, error.statusCode) // TODO:
+    sendErrorResponse(res, error.statusCode, error.message) // TODO:
   }
 }
 
 const getUser: RequestController<[string]> = async (_, res, userId) => {
   try {
-    const user = await userRepository.findById(userId)
-
-    if (!user) throw new AppError(StatusCode.NOT_FOUND, `User with id: ${userId} is not found`)
-
-    sendSuccessResponse(res, user)
+    const user = await userService.getUser(userId)
+    sendSuccessResponse(res, StatusCode.OK, user)
   } catch (error) {
-    sendErrorResponse(res, error.message, error.statusCode) // TODO:
+    sendErrorResponse(res, error.statusCode, error.message) // TODO:
   }
 }
 
 const createUser: RequestController = async (req, res) => {
   try {
     const body = await getRequestBody<CreateUserDTO>(req)
-
-    const { isValid, errors } = validateCreateUserDTO(body) // TODO: move error throwing into validation
-
-    if (!isValid) throw new AppError(StatusCode.BAD_REQUEST, errors[0])
-
-    const newUser = await userRepository.createUser(body)
-    sendSuccessResponse(res, newUser)
+    const newUser = await userService.createUser(body)
+    sendSuccessResponse(res, StatusCode.OK, newUser)
   } catch (error) {
-    sendErrorResponse(res, error.message, error.statusCode) // TODO:
+    sendErrorResponse(res, error.statusCode, error.message) // TODO:
   }
 }
 
 const updateUser: RequestController<[string]> = async (req, res, userId) => {
   try {
     const body = await getRequestBody<UpdateUserDTO>(req)
-
-    const { isValid, errors } = validateUpdateUserDTO(body) // TODO: move error throwing into validation
-
-    if (!isValid) throw new AppError(StatusCode.BAD_REQUEST, errors[0])
-
-    const updatedUser = await userRepository.updateUser(userId, body)
-
-    if (!updatedUser)
-      throw new AppError(StatusCode.NOT_FOUND, `User with id: ${userId} is not found`)
-
-    sendSuccessResponse(res, updatedUser)
+    const updatedUser = await userService.updateUser(userId, body)
+    sendSuccessResponse(res, StatusCode.OK, updatedUser)
   } catch (error) {
-    sendErrorResponse(res, error.message, error.statusCode) // TODO:
+    sendErrorResponse(res, error.statusCode, error.message) // TODO:
   }
 }
 
 const deleteUser: RequestController<[string]> = async (_, res, userId) => {
   try {
-    const isDeleted = await userRepository.deleteUser(userId)
-
-    if (!isDeleted) throw new AppError(StatusCode.NOT_FOUND, `User with id: ${userId} is not found`)
-
-    sendSuccessResponse(res, isDeleted, StatusCode.NO_CONTENT)
+    await userService.deleteUser(userId)
+    sendSuccessResponse(res, StatusCode.OK)
   } catch (error) {
-    sendErrorResponse(res, error.message, error.statusCode) // TODO:
+    sendErrorResponse(res, error.statusCode, error.message) // TODO:
   }
 }
 
