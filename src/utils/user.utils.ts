@@ -1,7 +1,24 @@
 import { validate as isUuid } from 'uuid'
+import { getPathParams } from './request.utils'
+import { ApiRoutes } from '../types/route.types'
+import { AppError } from '../types/error.types'
+import { ResponseCode } from '../types/response.types'
 
-export const isValidUserId = (userId: string): boolean => {
-  return isUuid(userId)
+export const getUserId = (url: string) => {
+  const params = getPathParams(url, `${ApiRoutes.USERS}/:userId`)
+
+  if (!params) {
+    throw new AppError(ResponseCode.BAD_REQUEST, `Invalid url: ${JSON.stringify(url)}`)
+  }
+
+  if (!isUuid(params.userId)) {
+    throw new AppError(
+      ResponseCode.BAD_REQUEST,
+      `Invalid user id: ${JSON.stringify(params.userId)}`
+    )
+  }
+
+  return params.userId
 }
 
 export const validateCreateUserDTO = (data: any): { isValid: boolean; errors: string[] } => {

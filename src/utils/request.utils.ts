@@ -22,3 +22,26 @@ export const getRequestBody = <T>(req: IncomingMessage): Promise<T> => {
     })
   })
 }
+
+export const getPathParams = <T = Record<string, string>>(
+  path: string,
+  pattern: string
+): T | null => {
+  const paramNames: string[] = []
+  const regexPattern = pattern.replace(/:[^\/]+/g, (match) => {
+    paramNames.push(match.slice(1))
+    return `([^/]+)`
+  })
+
+  const regex = new RegExp(`^${regexPattern}$`)
+  const matches = path.match(regex)
+
+  if (!matches) return null
+
+  const params = paramNames.reduce((acc, param, index) => {
+    acc[param] = matches[index + 1]
+    return acc
+  }, {} as T)
+
+  return params
+}

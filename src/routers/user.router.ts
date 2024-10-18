@@ -1,73 +1,50 @@
 import { type RequestListener } from 'node:http'
 import userController from '../controllers/user.controller'
 import { ApiRoutes } from '../types/route.types'
-import { isValidUserId } from '../utils/user.utils'
+import { getUserId } from '../utils/user.utils'
+import { ResponseCode } from '../types/response.types'
+import { RequestMethods } from '../types/request.types'
+import { handleErrorResponse } from '../utils/response.utils'
+import { AppError } from '../types/error.types'
 
 export const userRouter: RequestListener = (req, res) => {
   const { method, url } = req
+  try {
+    if (method === RequestMethods.GET) {
+      if (url === ApiRoutes.USERS) {
+        return void userController.getAllUsers(req, res)
+      }
 
-  if (method === 'GET') {
-    if (url === ApiRoutes.USERS) {
-      void userController.getAllUsers(req, res)
-      return
+      const userId = getUserId(url)
+      return void userController.getUser(req, res, userId)
     }
 
-    const userId = req.url.split('/').pop()
+    if (method === RequestMethods.POST) {
+      if (url === ApiRoutes.USERS) {
+        return void userController.createUser(req, res)
+      }
 
-    if (!isValidUserId(userId)) {
-      const response = { data: null, error: 'Bad request' }
-
-      res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify(response))
-      return
+      throw new AppError(ResponseCode.BAD_REQUEST, `Invalid url: ${JSON.stringify(url)}`)
     }
 
-    void userController.getUser(req, res, userId)
+    if (method === RequestMethods.PUT) {
+      if (url === ApiRoutes.USERS) {
+        throw new AppError(ResponseCode.BAD_REQUEST, `Invalid url: ${JSON.stringify(url)}`)
+      }
 
-    return
+      const userId = getUserId(url)
+      return void userController.updateUser(req, res, userId)
+    }
+
+    if (method === RequestMethods.DELETE) {
+      if (url === ApiRoutes.USERS) {
+        throw new AppError(ResponseCode.BAD_REQUEST, `Invalid url: ${JSON.stringify(url)}`)
+      }
+
+      const userId = getUserId(url)
+      return void userController.deleteUser(req, res, userId)
+    }
+  } catch (error) {
+    handleErrorResponse(res, error)
   }
-
-  if (method === 'POST') {
-    if (url === ApiRoutes.USERS) {
-      void userController.createUser(req, res)
-      return
-    }
-
-    return
-  }
-
-  if (method === 'PUT') {
-    const userId = req.url.split('/').pop()
-
-    if (!isValidUserId(userId)) {
-      const response = { data: null, error: 'Bad request' }
-
-      res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify(response))
-      return
-    }
-
-    void userController.updateUser(req, res, userId)
-
-    return
-  }
-
-  if (method === 'DELETE') {
-    const userId = req.url.split('/').pop()
-
-    if (!isValidUserId(userId)) {
-      const response = { data: null, error: 'Bad request' }
-
-      res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify(response))
-      return
-    }
-
-    void userController.deleteUser(req, res, userId)
-
-    return
-  }
-
-  res.writeHead(400, { 'Content-Type': 'text/plain' })
-  res.end('Bad Request')
 }
