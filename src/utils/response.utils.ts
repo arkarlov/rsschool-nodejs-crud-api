@@ -15,7 +15,7 @@ export const sendErrorResponse = (
   res: ServerResponse,
   statusCode: number = 500,
   message: string = 'Internal Server Error',
-  cause?: string
+  cause?: unknown
 ) => {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json')
